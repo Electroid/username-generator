@@ -1,6 +1,5 @@
 # UsernameGenerator
 A small library and test plugin for generating minecraft usernames.
-----------
 
 - `MinecraftUsernameGenerator.java` is the object the generates minecraft usernames given a "seed" string.
 
