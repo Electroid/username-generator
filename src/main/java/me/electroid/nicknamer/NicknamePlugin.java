@@ -13,6 +13,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import java.util.Random;
 
+/**
+ * A basic random identity generating plugin.
+ * @author ElectroidFilms
+ */
 public class NicknamePlugin extends JavaPlugin {
 
     private static final int MIN_USERNAME_LENGTH = 4;
@@ -23,10 +27,12 @@ public class NicknamePlugin extends JavaPlugin {
     public void onEnable() {}
 
     @Override
-    public void onDisable() {}
+    public void onDisable() {
+        Bukkit.getScheduler().cancelTasks(this);
+    }
 
     /**
-    * A async task to generate and apply the fake skin and username. (Never run on main thread)
+    * A async task to generate and apply the fake skin and username (Never run on main thread).
     */
     public class NicknameTask implements Runnable {
 
@@ -52,26 +58,42 @@ public class NicknamePlugin extends JavaPlugin {
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("nick")) {
-            if (sender instanceof Player) {
-                if (sender.hasPermission("nickname.use") || sender.isOp()) {
+            if (sender.hasPermission("nickname.use")) {
+                if (args.length == 1) {
                     sender.sendMessage("Attempting to generate random nickname and skin..");
                     Bukkit.getScheduler().runTaskAsynchronously(this, new NicknameTask((Player) sender));
+                } else if (args.length == 2) {
+                    Player player = Bukkit.getPlayerExact(args[1], sender);
+                    if (player != null) {
+                        sender.sendMessage("Attempting to generate random nickname and skin for " + player.getDisplayName(sender) + "..");
+                        Bukkit.getScheduler().runTaskAsynchronously(this, new NicknameTask(player));
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Could not find the specified player to nick");
+                    }
                 } else {
-                    sender.sendMessage(ChatColor.RED + "You do not have permission to use /nick");
+                    sender.sendMessage(ChatColor.RED + "Invalid formatting. /nick (player)");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "Only players may use /nick");
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use /nick");
             }
         } else if (cmd.getName().equalsIgnoreCase("clearnick")) {
-            if (sender instanceof Player) {
-                if (sender.hasPermission("nickname.use") || sender.isOp()) {
-                    ((Player) sender).clearFakeNamesAndSkins();
-                    sender.sendMessage(ChatColor.GREEN + "Your nickname and fake skin have been cleared");
+            if (args.length == 1) {
+                ((Player) sender).clearFakeNamesAndSkins();
+                sender.sendMessage(ChatColor.GREEN + "Your nickname and fake skin have been cleared.");
+            } else if (args.length == 2) {
+                if (sender.hasPermission("nickname.clear.others")) {
+                    Player player = Bukkit.getPlayerExact(args[1], sender);
+                    if (player != null) {
+                        player.clearFakeNamesAndSkins();
+                        sender.sendMessage(ChatColor.GREEN + player.getDisplayName(sender) + "'s nickname and fake skin have been cleared.");
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Could not find the specified player to clear their nick");
+                    }
                 } else {
                     sender.sendMessage(ChatColor.RED + "You do not have permission to use /clearnick");
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "Only players may use /clearnick");
+                sender.sendMessage(ChatColor.RED + "Invalid formatting. /clearnick (player)");
             }
         }
         return true;
@@ -83,7 +105,7 @@ public class NicknamePlugin extends JavaPlugin {
     */
     private String getSeedFromOcn() {
         /** Backup username in the event of any errors. */
-        String seed = "_tempKnoob_";
+        String seed = "_creeperNoob";
         try {
             Document doc = Jsoup.connect(OCN_PUNISHMENT_PAGE + randomWithinRange(OCN_PUNISHMENT_RANGE[0], OCN_PUNISHMENT_RANGE[1])).get();
             seed = doc.select("tbody").first().select("td").get(1).select("a").attr("href");

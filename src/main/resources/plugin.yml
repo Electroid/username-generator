@@ -1,12 +1,12 @@
 name: Nicknamer
-version: 0.1
+version: 0.2
 main: me.electroid.nicknamer.NicknamePlugin
 author: ElectroidFilms
 description: A plugin to test the functionality of randomly generating nicknames.
 commands:
    nick:
-      description: Give yourself a random nickname and skin.
-      usage: /nick
+      description: Give a player a random nickname and skin.
+      usage: /nick (player)
    clearnick:
-      description: Clear your random nickname and skin.
-      usage: /clearnick
+      description: Clear a player's random nickname and skin.
+      usage: /clearnick (player)

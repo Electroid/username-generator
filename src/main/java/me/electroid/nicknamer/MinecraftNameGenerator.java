@@ -150,13 +150,12 @@ public class MinecraftNameGenerator {
     */
     private String addNumbers(String string) {
         string = clearNumbers(string);
-        boolean front = randomBoolean();
         int length = random(MAX_NUMBERS - 1) + 1;
         String numbers = "";
         for (int i = 0; i <= length; i++) {
             numbers += String.valueOf(random());
         }
-        if (front) {
+        if (randomBoolean()) {
             return numbers += string;
         } else {
             return string += numbers;
@@ -228,11 +227,7 @@ public class MinecraftNameGenerator {
             int index = randomIndex(string);
             for (int i = 0; i < string.length(); i++) {
                 if (i == index) {
-                    if (randomBoolean()) {
-                        builder.append(characters[i] + UNDERSCORE);
-                    } else {
-                        builder.append(UNDERSCORE + characters[i]);
-                    }
+                    builder = randomBoolean() ? builder.append(characters[i] + UNDERSCORE) : builder.append(UNDERSCORE + characters[i]);
                 } else {
                     builder.append(characters[i]);
                 }
@@ -395,11 +390,7 @@ public class MinecraftNameGenerator {
             BufferedReader in = new BufferedReader(new InputStreamReader(new URL(MOJANG_URL + name).openStream()));
             String data = in.readLine();
             in.close();
-            if (data == null) {
-                return false;
-            } else {
-                return true;
-            }
+            return data == null ? false : true;
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return true;
